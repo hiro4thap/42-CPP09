@@ -41,13 +41,24 @@ std::string	Rpn::calculate(std::string const &rpn)
 				res = i2 - i1;
 			else if (op == '*')
 				res = i2 * i1;
-			else if (op == '/') //TODO: hanle zero deivision
+			else if (op == '/' && i1 == 0)
+				throw ZeroDivisionException();
+			else if (op == '/' && i1 != 0)
 				res = i2 / i1;
 			_stack.push(std::to_string(res));
 			
 		}
 	}
 	return _stack.top();
+}
+
+Rpn::ZeroDivisionException::ZeroDivisionException()
+{
+}
+
+char const *Rpn::ZeroDivisionException::what() const throw()
+{
+	return "Numbers cannot be divided by 0";
 }
 
 bool	Rpn::isOperator(char const c)
@@ -60,26 +71,33 @@ bool	Rpn::isDigit(char const c)
 	return ('0' <= c  && c <= '9');
 }
 
-// TODO: to be fixed
 bool	Rpn::isValidRpn(std::string const &rpn)
 {
-	if (rpn.size() < 5 || rpn.size() % 4 != 1)
+	if (rpn.empty())
 		return false;
 
 	std::size_t	index = 0;
 	if (!isDigit(rpn[index++]))
 		return false;
+	int	nums = 1;
 	while (index < rpn.size())
 	{
 		if (rpn[index++] != ' ')
 			return false;
-		if (!isDigit(rpn[index++]))
+		if (isDigit(rpn[index]))
+		{
+			nums++;
+			index++;
+		}
+		else if (isOperator(rpn[index]))
+		{
+			nums--;
+			index++;
+		}
+		else
 			return false;
-		if (rpn[index++] != ' ')
-			return false;
-		if (!isOperator(rpn[index++]))
+		if (nums < 1)
 			return false;
 	}
-	// Zero Division should be checked??
-	return true;
+	return (nums == 1);
 }

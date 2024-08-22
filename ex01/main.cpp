@@ -1,19 +1,27 @@
 #include "RPN.hpp"
+#include "Log.hpp"
 
 int	main(int argc, char *argv[])
 {
-	if (argc != 2 || !*argv[1])
+	if (argc != 2)
 	{
-		std::cout << "Invalid number of arguments" << std::endl;
+		Log::nl("Error: Invalid number of arguments", YELLOW);
+		return 1;
 	}
-	//if (!Rpn::isValidRpn(argv[1]))
-	//{
-	//	std::cout << "Invalid RPN is given as argument" << std::endl;
-	//	return 1;
-	//}
+	if (!Rpn::isValidRpn(argv[1]))
+	{
+		Log::nl("Error: The given RPN is invalid ", YELLOW);
+		return 1;
+	}
+
 	Rpn	rpn;
-	std::string str(argv[1]);
-	//rpn.setStack(str);
-	std::cout << rpn.calculate(str) << std::endl;
+	try
+	{
+		Log::nl(rpn.calculate(std::string(argv[1])));
+	}
+	catch (std::exception const &e)
+	{
+		Log::nl(e.what(), RED);
+	}
 	return 0;
 }
