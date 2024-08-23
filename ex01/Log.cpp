@@ -41,22 +41,22 @@ void Log::out(const float number, std::string color)
 
 void Log::nl(const std::string &message, std::string color) 
 {
-	std::cout << color << message << NONE << "\n";
+	std::cout << color << message << NONE << std::endl;
 }
 
 void Log::nl(const int number, std::string color) 
 {
-	std::cout << color << number << NONE << "\n";
+	std::cout << color << number << NONE << std::endl;
 }
 
 void Log::nl(const double number, std::string color)
 {
-	std::cout << color << number << NONE << "\n";
+	std::cout << color << number << NONE << std::endl;
 }
 
 void Log::nl(const float number, std::string color) 
 {
-	std::cout << color << number << NONE << "\n";
+	std::cout << color << number << NONE << std::endl;
 }
 
 void Log::setColor(std::string color)
