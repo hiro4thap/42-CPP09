@@ -36,8 +36,13 @@ int		BitcoinExchange::setData()
 		if (!validateData(line, delimiter))
 			return 1;
 		std::string	date = line.substr(0, line.find(delimiter));
+		trimSpace(date);
 		float		exchange_rate = std::stof(line.substr(line.find(delimiter) + 1));
-		_data.insert(std::pair<std::string, float>(date, exchange_rate));
+		if (!_data.insert(std::pair<std::string, float>(date, exchange_rate)).second)
+		{
+			Log::nl("Error: duplicate date exists => ", YELLOW);
+			return 1;
+		}
 	}
 	return 0;
 }
@@ -55,11 +60,17 @@ void	BitcoinExchange::displayValues(std::string const &file)
 	std::getline(istream, line);
 	while (std::getline(istream ,line))
 	{
-		if (!validatePrice(line, delimiter))
+		if (!validatePrice(line, delimiter, file))
 			continue ;
 		std::string	date = line.substr(0, line.find(delimiter));
+		trimSpace(date);
 		float		value = std::stof(line.substr(line.find(delimiter) + 1));
 		float		exchange_rate = findExchangeRate(date);
+		if (exchange_rate == -1)
+		{
+			Log::nl("Error: no data can be found", YELLOW);
+			continue ;
+		}
 		std::cout << date << " => " << value << " = " << value * exchange_rate << std::endl;
 	}
 }
@@ -74,7 +85,6 @@ bool BitcoinExchange::isValidDate(std::string const &date) const
 
 	std::istringstream 	iss(date);
 	iss >> year >> delimiter1 >> month >> delimiter2 >> day;
-	//std::cout << year << ' ' << month << ' ' << day << std::endl;
 	if (delimiter1 != '-' || delimiter2 != '-')
 		return false;
 	if (year < 0 || 9999 < year)
@@ -98,52 +108,75 @@ bool BitcoinExchange::isValidDate(std::string const &date) const
 
 bool	BitcoinExchange::validateData(std::string const &line, char const delimiter) const
 {
+	std::string	date = line.substr(0, line.find(delimiter));
+	if (!isValidDate(date))
+	{
+		Log::nl("Error: date is invalid in \"data.csv\" => " + date, YELLOW);
+		return false;
+	}
+
 	if (line.find(delimiter) == std::string::npos)
 	{
 		Log::nl("Error: exchange rate does not exist", YELLOW);
 		return false;
 	}
-	std::string	date = line.substr(0, line.find(delimiter));
-	float		exchange_rate = std::stof(line.substr(line.find(delimiter) + 1));
-	if (!isValidDate(date))
+	std::string str_exchange_rate = line.substr(line.find(delimiter) + 1);
+	float		exchange_rate;
+	try
 	{
-		Log::nl("Error: date format is invalid", YELLOW);
+		exchange_rate = std::stof(str_exchange_rate);
+	}
+	catch (std::exception &e)
+	{
+		Log::nl("Error: exchange rate is invalid => " + str_exchange_rate, YELLOW);
 		return false;
 	}
 	if (exchange_rate < 0)
 	{
-		Log::nl("Error: exchange rate is negative", YELLOW);
+		Log::out("Error: exchange rate is a negative number => ", YELLOW);
+		Log::nl(exchange_rate, YELLOW);
 		return false;
 	}
 	return true;
 }
 
-bool	BitcoinExchange::validatePrice(std::string const &line, char const delimiter) const
+bool	BitcoinExchange::validatePrice(std::string const &line, char const delimiter, std::string const &file) const
 {
-	if (line.find(delimiter) == std::string::npos)
+	std::string	date = line.substr(0, line.find(delimiter));
+	if (!isValidDate(date))
 	{
-		Log::nl("Error: value does not exist", YELLOW);
+		Log::nl("Error: date is invalid in \"" + file + "\" => " + date, YELLOW);
 		return false;
 	}
-	std::string	date = line.substr(0, line.find(delimiter));
+
+	if (line.find(delimiter) == std::string::npos)
+	{
+		Log::nl("Error: value does not exist => " + line, YELLOW);
+		return false;
+	}
+	std::string str_value = line.substr(line.find(delimiter) + 1);
 	float		value;
 	try
 	{
-		value = std::stof(line.substr(line.find(delimiter) + 1));
+		value = std::stof(str_value);
 	}
 	catch (std::exception &e)
 	{
-		Log::nl("Error: value is invalid", YELLOW);
+		Log::nl("Error: value is invalid => " + str_value, YELLOW);
 		return false;
 	}
-	if (!isValidDate(date))
+	if (value < 0)
 	{
-		Log::nl("Error: date format is invalid", YELLOW);
+		Log::out("Error: value is a negative number => ", YELLOW);
+		std::cout << std::setprecision(line.size() - line.find(delimiter));
+		Log::nl(value, YELLOW);
 		return false;
 	}
-	if (value < 0 || 1000 < value)
+	if (1000 < value)
 	{
-		Log::nl("Error: value is invalid", YELLOW);
+		Log::out("Error: value is greater than 1000 => ", YELLOW);
+		std::cout << std::setprecision(line.size() - line.find(delimiter));
+		Log::nl(value, YELLOW);
 		return false;
 	}
 	return true;
@@ -154,8 +187,17 @@ float	BitcoinExchange::findExchangeRate(std::string const &date) const
 	std::map<std::string, float>::const_iterator	cit = _data.upper_bound(date);
 	if (cit == _data.cbegin() && _data.find(date) != _data.begin())
 	{
-		Log::nl("No info");
 		return -1;
 	}
 	return (--cit)->second;
 }
+
+void	BitcoinExchange::trimSpace(std::string &str)
+{
+	str.erase(str.begin(), std::find_if(str.begin(), str.end(),
+				std::not1(std::ptr_fun<int, int>(std::isspace))));
+	str.erase(std::find_if(str.rbegin(), str.rend(),
+				std::not1(std::ptr_fun<int, int>(std::isspace))).base(), str.end());
+}
+
+
