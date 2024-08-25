@@ -8,6 +8,7 @@
 # include <cmath>
 # include <algorithm>
 # include <sys/time.h>
+# include <sstream>
 
 class	PmergeMe
 {
@@ -23,11 +24,12 @@ public:
 	void		setVElapseTime(int const elapse_time);
 	
 private:
-	vector<int>	parseInput(int size, char *numbers[]) const;
-	void		setPairs(vector<int> input);
+	std::vector<int>	parseInput(int size, char *numbers[]) const;
+	void		setPairs(std::vector<int> input);
 	void		initializeChain();
-	void		insertToParis(vector<int> pair);
+	void		insertToPairs(std::vector<int> pair);
 	void		insertToChain(int compare_times, int n);
+	int			findJacobDiff(int n);
 	std::vector<std::vector<int> >	_v_pairs;
 	std::vector<int>				_v_chain;
 	int								_v_elapse_time;

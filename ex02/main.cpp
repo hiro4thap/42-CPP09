@@ -4,7 +4,7 @@
 
 void	printInput(int argc, char *argv[])
 {
-	Log::out("Before:   ");
+	Log::out("Before: ");
 	for (int i = 1; i < argc; i++)
 		std::cout << ' ' << argv[i];
 	std::cout << std::endl;
@@ -33,8 +33,8 @@ int	main(int argc, char *argv[])
 	PmergeMe	pm;
 
 	pm.mergeInsertSort(--argc, ++argv);
-	//printChain();
-	std::cout << "Time to process a range of " << argc - 1 
+	pm.printChain();
+	std::cout << "Time to process a range of " << argc
 		<< " elements with std::vector<int> : " 
 		<< pm.getVElapseTime() << " us" 
 		<< std::endl; 
