@@ -31,12 +31,12 @@ void	PmergeMe::printChain() const
 void	PmergeMe::mergeInsertSort(int size, char *numbers[])
 {
 	struct timeval	start, end;
-	gettimeofday(&start, NULL);
 	// sort with vector;
+	gettimeofday(&start, NULL);
 	std::vector<int> input = parseInput(size, numbers);
-	setPairs(input);
-	initializeChain();
-	for (int i = 2; i < 10; i++) //TODO:numbers
+	setPairs(input); //47800us
+	initializeChain(); //800us
+	for (int i = 2; findJacobDiff(i - 1) < size; i++) //800us
 	{
 		for (int diff = findJacobDiff(i); findJacobDiff(i - 1) < diff; diff--)
 		{
@@ -54,7 +54,8 @@ int const	&PmergeMe::getVElapseTime() const
 {
 	return _v_elapse_time;
 }
-void		PmergeMe::setVElapseTime(int const elapse_time)
+
+void	PmergeMe::setVElapseTime(int const elapse_time)
 {
 	_v_elapse_time = elapse_time;
 }
@@ -93,6 +94,21 @@ void	PmergeMe::setPairs(std::vector<int> input)
 		}
 		insertToPairs(pair);
 	}
+	//for (std::size_t i = 0; i < input.size(); i += 2)
+	//{
+	//	std::vector<int> pair;
+	//	if (input[i] < input[i + 1])
+	//	{
+	//		pair.push_back(input[i]);
+	//		pair.push_back(input[i + 1]);
+	//	}
+	//	else
+	//	{
+	//		pair.push_back(input[i + 1]);
+	//		pair.push_back(input[i]);
+	//	}
+	//insertToPairs(pair);
+	//}
 	if (has_alone)
 	{
 		std::vector<int>	alone;
