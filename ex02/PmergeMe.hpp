@@ -2,6 +2,7 @@
 # define PMERGEME_HPP
 
 # include <list>
+# include <deque>
 # include <vector>
 # include <iostream>
 # include <ctime>
@@ -18,22 +19,54 @@ public:
 	PmergeMe(PmergeMe const &rhs);
 	PmergeMe	&operator=(PmergeMe const &rhs);
 	
-	void		printChain() const;
-	void		mergeInsertSort(int size, char *numbers[]);
-	int const	&getVElapseTime() const;
-	void		setVElapseTime(int const elapse_time);
-	
+	std::vector<int> const	&getVChain() const;
+	int const				&getVElapseTime() const;
+	void					setVElapseTime(int const elapse_time);
+	std::deque<int> const	&getDChain() const;
+	int const				&getDElapseTime() const;
+	void					setDElapseTime(int const elapse_time);
+
+	void					mergeInsertSort(int size, char *numbers[]); // common
+
 private:
-	std::vector<int>	parseInput(int size, char *numbers[]) const;
-	void		setPairs(std::vector<int> input);
-	void		initializeChain();
-	void		insertToPairs(std::vector<int> pair);
-	void		insertToChain(int compare_times, int n);
-	int			findJacobDiff(int n);
-	std::vector<std::vector<int> >	_v_pairs;
-	std::vector<int>				_v_chain;
-	int								_v_elapse_time;
-//	list<list<int> >		_lstore;
+	std::vector<int>							vectorParseInput(int size, char *numbers[]) const;
+	void										vectorBinaryInsert(
+			std::vector<std::pair<std::size_t, int> > &chain,
+			int low,
+			int high,
+			std::pair<std::size_t, int> n);
+	//void		printChain() const;
+	std::vector<std::size_t>					vectorSortImplement(std::vector<int> input);
+	std::vector<std::pair<std::size_t, int> >	vectorExtractNumbers(
+			std::vector<std::pair<std::size_t, int> >::iterator start,
+			std::vector<std::pair<std::size_t, int> >::iterator end,
+			int interval);
+	std::vector<std::pair<std::size_t, int> >	vectorArrange(
+			std::vector<std::pair<std::size_t, int> > numbers,
+			std::vector<std::size_t> indexes);
+
+	int											findJacobDiff(int n);
+	std::vector<int>							_v_chain;
+	int											_v_elapse_time;
+
+	std::deque<int>							dequeParseInput(int size, char *numbers[]) const;
+	void										dequeBinaryInsert(
+			std::deque<std::pair<std::size_t, int> > &chain,
+			int low,
+			int high,
+			std::pair<std::size_t, int> n);
+	//void		printChain() const;
+	std::deque<std::size_t>					dequeSortImplement(std::deque<int> input);
+	std::deque<std::pair<std::size_t, int> >	dequeExtractNumbers(
+			std::deque<std::pair<std::size_t, int> >::iterator start,
+			std::deque<std::pair<std::size_t, int> >::iterator end,
+			int interval);
+	std::deque<std::pair<std::size_t, int> >	dequeArrange(
+			std::deque<std::pair<std::size_t, int> > numbers,
+			std::deque<std::size_t> indexes);
+
+	std::deque<int>								_d_chain;
+	int											_d_elapse_time;
 };
 
 #endif
