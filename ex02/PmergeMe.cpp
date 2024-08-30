@@ -29,11 +29,6 @@ int const	&PmergeMe::getVElapseTime() const
 	return _v_elapse_time;
 }
 
-void	PmergeMe::setVElapseTime(int const elapse_time)
-{
-	_v_elapse_time = elapse_time;
-}
-
 std::vector<int>	PmergeMe::vectorParseInput(int size, char *numbers[]) const
 {
 	int	n;
@@ -59,7 +54,7 @@ void	PmergeMe::mergeInsertSort(int size, char *numbers[])
 	for (int i = 0; i < size; i++)
 		_v_chain.push_back(v_input[v_indexes[i]]);
 	gettimeofday(&end, NULL);
-	setVElapseTime(end.tv_usec - start.tv_usec);
+	_v_elapse_time = end.tv_usec - start.tv_usec;
 
 	//sort using deque;
 	gettimeofday(&start, NULL);
@@ -68,7 +63,7 @@ void	PmergeMe::mergeInsertSort(int size, char *numbers[])
 	for (int i = 0; i < size; i++)
 		_d_chain.push_back(d_input[d_indexes[i]]);
 	gettimeofday(&end, NULL);
-	setDElapseTime(end.tv_usec - start.tv_usec);
+	_d_elapse_time = end.tv_usec - start.tv_usec;
 }
 
 // 1. assign index on numbers
@@ -94,14 +89,14 @@ void	PmergeMe::mergeInsertSort(int size, char *numbers[])
 // 6. return vector of indexes
 std::vector<std::size_t>	PmergeMe::vectorSortImplement(std::vector<int> input)
 {
-	int size = input.size();
+	std::size_t size = input.size();
 	if (size == 1)
 	{
 		std::vector<std::size_t> single(1, 0);
 		return single;
 	}
 	std::vector<std::pair<std::size_t, int> >	numbers;
-	for (std::size_t i = 0; i < input.size(); i++)
+	for (std::size_t i = 0; i < size; i++)
 	{
 		numbers.push_back(std::make_pair<std::size_t, int>(i, input[i]));
 		if (i % 2 == 1 && input[i] < input[i - 1])
@@ -109,25 +104,25 @@ std::vector<std::size_t>	PmergeMe::vectorSortImplement(std::vector<int> input)
 	}
 
 	std::vector<int> larger_numbers;
-	for (int i = 1; i < size; i += 2)
+	for (std::size_t i = 1; i < size; i += 2)
 		larger_numbers.push_back(numbers[i].second);
 
 	std::vector<std::size_t> indexes = vectorSortImplement(larger_numbers);
 
-	std::vector<std::pair<std::size_t, int> >	smaller = vectorArrange(vectorExtractNumbers(numbers.begin(), numbers.end(), 2), indexes);
-	std::vector<std::pair<std::size_t, int> >	chain = vectorArrange(vectorExtractNumbers(numbers.begin() + 1, numbers.end(), 2), indexes);
+	std::vector<std::pair<std::size_t, int> >	smaller = vectorArrangeOrder(vectorExtractNumbers(numbers.begin(), numbers.end(), 2), indexes);
+	std::vector<std::pair<std::size_t, int> >	chain = vectorArrangeOrder(vectorExtractNumbers(numbers.begin() + 1, numbers.end(), 2), indexes);
 	chain.insert(chain.begin(), smaller[0]);
-	for (int i = 2; findJacobDiff(i - 1) <= (int)smaller.size(); i++)
+	for (std::size_t i = 2; findJacobDiff(i - 1) <= smaller.size(); i++)
 	{
-		for (int diff = findJacobDiff(i); findJacobDiff(i - 1) < diff; diff--)
+		for (std::size_t diff = findJacobDiff(i); findJacobDiff(i - 1) < diff; diff--)
 		{
-			if (diff <= (int)smaller.size())
+			if (diff <= smaller.size())
 				vectorBinaryInsert(chain, 0, pow(2, i - 1), smaller[diff - 1]);
 		}
 	}
 	
 	std::vector<std::size_t>	new_indexes;
-	for (int i = 0; i < size; i++)
+	for (std::size_t i = 0; i < size; i++)
 		new_indexes.push_back(chain[i].first);
 	return new_indexes;
 }
@@ -143,7 +138,7 @@ std::vector<std::pair<std::size_t, int> > PmergeMe::vectorExtractNumbers(
 	return extracted;
 }
 
-std::vector<std::pair<std::size_t, int> >	PmergeMe::vectorArrange(std::vector<std::pair<std::size_t, int> > numbers, std::vector<std::size_t> indexes)
+std::vector<std::pair<std::size_t, int> >	PmergeMe::vectorArrangeOrder(std::vector<std::pair<std::size_t, int> > numbers, std::vector<std::size_t> indexes)
 {
 	std::vector<std::pair<std::size_t, int> >	replaced;
 	for (std::size_t i = 0; i < indexes.size(); i++)
@@ -179,7 +174,7 @@ void	PmergeMe::vectorBinaryInsert(std::vector<std::pair<std::size_t, int> > &cha
 		chain.insert(chain.begin() + low + 1, num);
 }
 
-int	PmergeMe::findJacobDiff(int n)
+std::size_t	PmergeMe::findJacobDiff(int n)
 {
 	return ((pow(2, n + 1) + pow(-1, n)) / 3);
 }
@@ -192,11 +187,6 @@ std::deque<int> const	&PmergeMe::getDChain() const
 int const	&PmergeMe::getDElapseTime() const
 {
 	return _d_elapse_time;
-}
-
-void	PmergeMe::setDElapseTime(int const elapse_time)
-{
-	_d_elapse_time = elapse_time;
 }
 
 std::deque<int>	PmergeMe::dequeParseInput(int size, char *numbers[]) const
@@ -216,14 +206,14 @@ std::deque<int>	PmergeMe::dequeParseInput(int size, char *numbers[]) const
 
 std::deque<std::size_t>	PmergeMe::dequeSortImplement(std::deque<int> input)
 {
-	int size = input.size();
+	std::size_t size = input.size();
 	if (size == 1)
 	{
 		std::deque<std::size_t> single(1, 0);
 		return single;
 	}
 	std::deque<std::pair<std::size_t, int> >	numbers;
-	for (std::size_t i = 0; i < input.size(); i++)
+	for (std::size_t i = 0; i < size; i++)
 	{
 		numbers.push_back(std::make_pair<std::size_t, int>(i, input[i]));
 		if (i % 2 == 1 && input[i] < input[i - 1])
@@ -231,25 +221,25 @@ std::deque<std::size_t>	PmergeMe::dequeSortImplement(std::deque<int> input)
 	}
 
 	std::deque<int> larger_numbers;
-	for (int i = 1; i < size; i += 2)
+	for (std::size_t i = 1; i < size; i += 2)
 		larger_numbers.push_back(numbers[i].second);
 
 	std::deque<std::size_t> indexes = dequeSortImplement(larger_numbers);
 
-	std::deque<std::pair<std::size_t, int> >	smaller = dequeArrange(dequeExtractNumbers(numbers.begin(), numbers.end(), 2), indexes);
-	std::deque<std::pair<std::size_t, int> >	chain = dequeArrange(dequeExtractNumbers(numbers.begin() + 1, numbers.end(), 2), indexes);
+	std::deque<std::pair<std::size_t, int> >	smaller = dequeArrangeOrder(dequeExtractNumbers(numbers.begin(), numbers.end(), 2), indexes);
+	std::deque<std::pair<std::size_t, int> >	chain = dequeArrangeOrder(dequeExtractNumbers(numbers.begin() + 1, numbers.end(), 2), indexes);
 	chain.insert(chain.begin(), smaller[0]);
-	for (int i = 2; findJacobDiff(i - 1) <= (int)smaller.size(); i++)
+	for (std::size_t i = 2; findJacobDiff(i - 1) <= smaller.size(); i++)
 	{
-		for (int diff = findJacobDiff(i); findJacobDiff(i - 1) < diff; diff--)
+		for (std::size_t diff = findJacobDiff(i); findJacobDiff(i - 1) < diff; diff--)
 		{
-			if (diff <= (int)smaller.size())
+			if (diff <= smaller.size())
 				dequeBinaryInsert(chain, 0, pow(2, i - 1), smaller[diff - 1]);
 		}
 	}
 	
 	std::deque<std::size_t>	new_indexes;
-	for (int i = 0; i < size; i++)
+	for (std::size_t i = 0; i < size; i++)
 		new_indexes.push_back(chain[i].first);
 	return new_indexes;
 }
@@ -265,7 +255,7 @@ std::deque<std::pair<std::size_t, int> > PmergeMe::dequeExtractNumbers(
 	return extracted;
 }
 
-std::deque<std::pair<std::size_t, int> >	PmergeMe::dequeArrange(std::deque<std::pair<std::size_t, int> > numbers, std::deque<std::size_t> indexes)
+std::deque<std::pair<std::size_t, int> >	PmergeMe::dequeArrangeOrder(std::deque<std::pair<std::size_t, int> > numbers, std::deque<std::size_t> indexes)
 {
 	std::deque<std::pair<std::size_t, int> >	replaced;
 	for (std::size_t i = 0; i < indexes.size(); i++)
