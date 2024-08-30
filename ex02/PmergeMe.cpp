@@ -117,7 +117,7 @@ std::vector<std::size_t>	PmergeMe::vectorSortImplement(std::vector<int> input)
 		for (std::size_t diff = findJacobDiff(i); findJacobDiff(i - 1) < diff; diff--)
 		{
 			if (diff <= smaller.size())
-				vectorBinaryInsert(chain, 0, pow(2, i - 1), smaller[diff - 1]);
+				vectorBinaryInsert(chain, 0, std::min(static_cast<std::size_t>(pow(2, i) - 2), chain.size() - 1) , smaller[diff - 1]);
 		}
 	}
 	
